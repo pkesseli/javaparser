@@ -541,6 +541,9 @@ public class TypeExtractor extends DefaultVisitorAdapter {
     @Override
     public ResolvedType visit(TypeExpr node, Boolean solveLambdas) {
         Log.trace("getType on type expr %s", ()-> node);
+        if (node.getType().isPrimitiveType()) {
+            return node.getType().resolve();
+        }
         if (!(node.getType() instanceof ClassOrInterfaceType)) {
             throw new UnsupportedOperationException(node.getType().getClass().getCanonicalName());
         }

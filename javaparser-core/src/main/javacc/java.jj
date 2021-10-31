@@ -3978,12 +3978,41 @@ NodeList<Expression> ArgumentList():
     Expression expr;
 }
 {
-    expr = Expression() { ret.add(expr); }
+    expr = JavaDocArgumentExpression() { ret.add(expr); }
     (
         ","
-        expr = Expression() { ret.add(expr); }
+        expr = JavaDocArgumentExpression() { ret.add(expr); }
     )*
     { return ret; }
+}
+
+/**
+ * Special type of expression only used in {@code ArgumentList}. More generous
+ * than the JLS by allowing {@code Parameter}s and {@code AnnotatedType}s in
+ * addition to {@code Expression}. The purpose of being more broad here is to
+ * allow common syntax for code examples used in JavaDoc. As an example, allows
+ * to parse {@code Calendar.set(Calendar.HOUR_OF_DAY, int hours)} or
+ * {@code contains(int, int)}. The parsed {@code MethodCallExpr}s are then used
+ * by resynth as hints to construct instructions in the synthesis phase.
+ */
+Expression JavaDocArgumentExpression():
+{
+    Parameter parameter;
+    Type type;
+    Expression expr;
+}
+{
+    (
+        LOOKAHEAD(Expression())
+        expr = Expression()
+     |
+        LOOKAHEAD(Parameter())
+        parameter = Parameter() { expr = new VariableDeclarationExpr(new VariableDeclarator(parameter.getType(), parameter.getName())); }
+     |
+        LOOKAHEAD(AnnotatedType())
+        type = AnnotatedType() { expr = new TypeExpr(type); }
+    )
+    { return expr; }
 }
 
 /**
