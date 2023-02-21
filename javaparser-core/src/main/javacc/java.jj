@@ -4003,11 +4003,11 @@ Expression JavaDocArgumentExpression():
 }
 {
     (
-        LOOKAHEAD(Expression())
-        expr = Expression()
-     |
         LOOKAHEAD(Parameter())
         parameter = Parameter() { expr = new VariableDeclarationExpr(new VariableDeclarator(parameter.getType(), parameter.getName())); }
+     |
+        LOOKAHEAD(Expression())
+        expr = Expression()
      |
         LOOKAHEAD(AnnotatedType())
         type = AnnotatedType() { expr = new TypeExpr(type); }
